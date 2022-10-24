@@ -101,8 +101,8 @@ def csv_loader():
         load_job.result()
 
         # Make an API request. destination_table = client.get_table(table_id)  
-        logging.error(f"Lionel Messi has loaded {object_id} into BigQuery")
-        return (f"Lionel Messi has loaded {object_id} into BigQuery.", 200)
+        logging.error(f"Fat Albert has loaded {object_id} into BigQuery")
+        return (f"Fat Albert has loaded {object_id} into BigQuery.", 200)
  
     return ("", 204)
     
