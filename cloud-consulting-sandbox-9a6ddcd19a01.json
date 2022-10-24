@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "cloud-consulting-sandbox",
+  "private_key_id": "9a6ddcd19a017957ad7ab9033add558a18b937e7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDtkBZNBfl/KwtA\n1FsxDxjgzVjQB1veTo4JUEx7ACJieQyfvGFwpQcjV3GBEWVLly+qabi4n0sADqYC\n914bp043ynl9m15B85BHV2lMjSed/BXN910uGdAyfijnDnyqdBL7Jpu7gHeKWMBN\nykWkWakayGqhg5a3YFSeMtbGzGgP9AFD7gsWXnHtrNX4RaH/9b1aNRhcBAqdm3eu\nWb/bU/VBNz3+MI6iiY3O7DbSvWBcJ+b2CQWopQ7Rm8L1tMXGnGZg6b13DWvXlnSz\n/teFBFzxitIgT/l1todkkU0dPogDHBjKt/5eF3NqZz33Dnn5Rcx/ZVuEqN8iNKi1\nzLYOt0qpAgMBAAECggEADhAK+elCITCDnIVVlpxdrSUKvlnJKuo8hzmdJWTXJDwl\nLqmAnSHvv7xT6D+G3wgmlrBmcmtfjbPQSPmqtPlc7HmMYo6ZcE8COe7nOVRbxYLg\nKY6ckfeONwb31eGqKI7xdrOM4XcT3HkvfQtdvwJdu8ukYEZBXD6UE79Prnn4KQV8\nAJLqgjBB7+qfe7EPjhw3lwC40kOIMy22JcVC1ROsIc4koV4xoD9LWF4zHcj915cq\n+toHIT/MnOY10jsV8wmwZcMswlJBjQ7porBortLsSV1zeG0RwNvssgXOvPoVkobl\n862wkAkyd8Du5nOA88AyUrVZr8o99nQjRDuJlVd3NwKBgQD6Gnme2e0OfOP8s4KJ\ndlDhcaXOyRTwfn1LTldDibvsJhVI5zfzqFZfILYRn0lFuCxnM/RXJb0ZiYh1wZfZ\nXgEY9UF92+4zYAgj00ufI5gZre3d1oc9aVeSkkQZkxUM2IZqOZ2HzyTZ64rcIsPD\nRJgp4eYhgCwsVwfTKqDtcPwi7wKBgQDzKewNqyctQMY/sawVMaoGnv7ib5L8P4YV\nLnV2dN01yAC0KCws4WTMlC0jldWXv4gdVf37qnhynMhTJXhFlUV02fvz4pX5ZRTr\nHiHCJdyiAPMcvzT50VVApSH2SL8r3+Nqwlqe1EAze0VkR0g2aJWcWkbhQSrsOSMn\nA6UU34SL5wKBgQDtRAKPJZUTwn2TNUUoXVs7lNJEy1SXFpiMwYRdqSPjUvmsUNYu\nzEssMd8n9qHPh3pwacRqjH3J5UTU2dTRvLFz2O/Jk8R1bqwqOICsN1tLOUrIwoVI\nSFBw11vNm1BEAIH78i61MVl3d1IjpsNq0v879Hea3nqJkgL1XKKQvzgjdwKBgGdD\nG0pmr3lpM4di9Tf+4jxzkrwoM5xJgbBHDXzjfflT2PCoyrG4eezi1BRzkcQigzQq\nC3SvXP0XFX8xv1SVYmyQEY3tYFELmwmJvz5Kg9qMWrGPhXi9a93LApQrKnwAVPxG\nUuN2MVlrdPlzx/fLDBXcxJLt8MNmNEZiJt2pWglrAoGABiWsOKAPCycInc1I+HEy\nJkFMXLqs+I+dmO5rbH+DcyukhLesJQn6Xts+Bo+DmGcSxLpFbmnwtt52WGVk0OQN\nIT2ZVJevr53TPi9cF3xFNElZ8DFIprFRN7Hs6J0qCSl7jK1p2I5LDZUCJ/pARVkw\nbulCJnHMIM1jxZ69y1f4pyI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "capstone-sa@cloud-consulting-sandbox.iam.gserviceaccount.com",
+  "client_id": "118389430200914792796",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/capstone-sa%40cloud-consulting-sandbox.iam.gserviceaccount.com"
+}

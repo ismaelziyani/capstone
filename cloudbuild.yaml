@@ -53,3 +53,6 @@ steps:
     - '2Gi'
 
     - '--allow-unauthenticated'
+  
+  options:
+    logging: CLOUD_LOGGING_ONLY
