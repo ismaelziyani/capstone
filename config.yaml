@@ -1,0 +1,11 @@
+project_id: 'cloud-consulting-sandbox'
+
+#Storage
+bucket: 'capstone_csv_bucket'
+
+#Bigquery
+dataset: 'capstone_dataset'
+table: 'capstone_table'
+
+#Pubsub
+subscription_id : "capstone-subscription"

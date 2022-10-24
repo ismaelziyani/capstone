@@ -1,0 +1,1 @@
+gcloud builds submit --substitutions=_APP_NAME=capstone-v2,_CLOUD_REGION=europe-west1,_SERVICE_SA=capstone-sa@cloud-consulting-sandbox.iam.gserviceaccount.com
