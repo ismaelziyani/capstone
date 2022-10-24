@@ -55,4 +55,4 @@ steps:
     - '--allow-unauthenticated'
   
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: NONE
