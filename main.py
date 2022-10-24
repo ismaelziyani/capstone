@@ -1,17 +1,28 @@
+import logging
 import yaml
 import os
 
 from google.cloud import bigquery
+import google.cloud.logging
 from flask import Flask, request
 
 app = Flask(__name__)
 
 
 #Credentials for local testing
-#os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="cloud-consulting-sandbox-9a6ddcd19a01.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="cloud-consulting-sandbox-9a6ddcd19a01.json"
 
 # Construct a BigQuery client object.
 client = bigquery.Client()
+
+#Google Cloud Logging client
+logging_client = google.cloud.logging.Client()
+
+# Retrieves a Cloud Logging handler based on the environment
+# you're running in and integrates the handler with the
+# Python logging module. By default this captures all logs
+# at INFO level and higher
+logging_client.setup_logging()
 
 # Load config file
 def load_config(file):
@@ -37,28 +48,29 @@ table_id = f"{project_id}.{dataset}.{table}"
 
 @app.route("/trigger", methods=["POST"])  # type: ignore
 def csv_loader():
+    logging.warning("Trigger router is triggered!")
     payload = request.get_json()
     #print(payload)
     
     if not payload:
         msg = "no Pub/Sub message received"
-        print(f"Bad Request: {msg}")
+        logging.error(f"Bad Request. error: {msg}")
         return (f"Bad Request: {msg}", 400)
 
     if not isinstance(payload, dict) or "message" not in payload:
         msg = "invalid Pub/Sub message format"
-        print(f"Bad Request: {msg}")
+        logging.error(f"Bad Request. error: {msg}")
         return (f"Bad Request2: {msg}", 400)
     
     
     pubsub_message: dict = payload["message"]
-    print(pubsub_message)
+
     object_id = pubsub_message['attributes']['objectId']
-    print(object_id)
+    logging.error(f"Object detected in {bucket} : {object_id}")
     
     if not object_id.endswith('.csv'):
         msg = "Wrong file format!"
-        print(f"Bad Request: {msg}")
+        logging.error(f"Bad Request. error: {msg}")
         return (f"Bad Request: {msg}", 405)
     
 
@@ -88,9 +100,9 @@ def csv_loader():
         # Waits for the job to complete.
         load_job.result()
 
-        destination_table = client.get_table(table_id)  # Make an API request.
-        print(f"Batman has loaded {object_id} into Bigquery.".format(destination_table.num_rows))
-        return (f"Batman has loaded {object_id} into Bigquery.".format(destination_table.num_rows), 200)
+        # Make an API request. destination_table = client.get_table(table_id)  
+        logging.error(f"Lionel Messi has loaded {object_id} into BigQuery")
+        return (f"Lionel Messi has loaded {object_id} into BigQuery.", 200)
  
     return ("", 204)
     
