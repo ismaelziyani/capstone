@@ -1,39 +1,26 @@
 substitutions:
   _APP_NAME: 'capstone-v2'
-  _CLOUDR_REGION: 'europe-west1'
+  _CLOUD_REGION: 'europe-west1'
   _SERVICE_SA: 'capstone-sa@cloud-consulting-sandbox.iam.gserviceaccount.com'
 
-
+# Build image
 steps:
 - name: 'gcr.io/cloud-builders/docker'
+  id: 'Build Docker image'
   args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA', '.']
 
-
-
 # Push the container image to Container Registry
-
 - name: 'gcr.io/cloud-builders/docker'
+  id: 'Push to Contaier Registry'
   args: ['push', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA']  
 
-
-
 # Deploy container image to Cloud Run
-
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args: 
-    - 'run'
-    - 'deploy'
-    - '${_APP_NAME}'
-    - '--image'
-    - 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA'
-    - '--region'
-    - '${_CLOUD_REGION}'
-    - --timeout
-    - '60m'
-    - '--service-account=${_SERVICE_SA}'
-    - --cpu
-    - '4'
-    - --memory
-    - '2Gi'
-    - '--allow-unauthenticated'
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Deploy image to Cloud Run'
+  args: ['run', 'deploy', '${_APP_NAME}',
+  '--image=eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA',
+  '--region', '${_CLOUD_REGION}',
+  '--platform', 'managed',
+  '--timeout', '3600',
+  '--allow-unauthenticated'
+  ]
