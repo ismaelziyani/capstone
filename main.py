@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 #Credentials for local testing
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="cloud-consulting-sandbox-9a6ddcd19a01.json"
+#os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="cloud-consulting-sandbox-9a6ddcd19a01.json"
 
 # Construct a BigQuery client object.
 client = bigquery.Client()
@@ -101,8 +101,8 @@ def csv_loader():
         load_job.result()
 
         # Make an API request. destination_table = client.get_table(table_id)  
-        logging.error(f"Fat Albert has loaded {object_id} into BigQuery")
-        return (f"Fat Albert has loaded {object_id} into BigQuery.", 200)
+        logging.error(f"Oprah has loaded {object_id} into BigQuery")
+        return (f"Oprah has loaded {object_id} into BigQuery.", 200)
  
     return ("", 204)
     
