@@ -62,11 +62,9 @@ def csv_loader():
         logging.error(f"Bad Request. error: {msg}")
         return (f"Bad Request2: {msg}", 400)
     
-    
     pubsub_message: dict = payload["message"]
 
     object_id = pubsub_message['attributes']['objectId']
-    logging.error(f"Object detected in {bucket} : {object_id}")
     
     if not object_id.endswith('.csv'):
         msg = "Wrong file format!"
@@ -75,6 +73,8 @@ def csv_loader():
     
 
     if pubsub_message['attributes']['eventType'] == 'OBJECT_FINALIZE':
+        
+        logging.info(f"Object detected in {bucket} : {object_id}")    
         
         job_config = bigquery.LoadJobConfig(
             schema=[
@@ -101,8 +101,8 @@ def csv_loader():
         load_job.result()
 
         # Make an API request. destination_table = client.get_table(table_id)  
-        logging.error(f"Oprah has loaded {object_id} into BigQuery")
-        return (f"Oprah has loaded {object_id} into BigQuery.", 200)
+        logging.info(f"Michael Jackson has loaded {object_id} into BigQuery")
+        return (f"Michael Jackson has loaded {object_id} into BigQuery.", 200)
  
     return ("", 204)
     
