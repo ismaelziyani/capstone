@@ -6,14 +6,14 @@ substitutions:
 
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA', '.']
+  args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA', '.']
 
 
 
 # Push the container image to Container Registry
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA']  
+  args: ['push', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA']  
 
 
 
@@ -26,7 +26,7 @@ steps:
     - 'deploy'
     - '${_APP_NAME}'
     - '--image'
-    - 'gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA'
+    - 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA'
     - '--region'
     - '${_CLOUD_REGION}'
     - --timeout
