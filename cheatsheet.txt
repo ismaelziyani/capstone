@@ -1,2 +1,0 @@
-#Copy to test bucket
-gsutil cp mock-data.csv gs://capstone_csv_bucket
