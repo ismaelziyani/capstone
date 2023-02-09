@@ -48,7 +48,7 @@ table_id = f"{project_id}.{dataset}.{table}"
 
 @app.route("/trigger", methods=["POST"])  # type: ignore
 def csv_loader():
-    logging.warning("Trigger router is triggered!")
+    logging.warning("Triggered the router!")
     payload = request.get_json()
     #print(payload)
     
