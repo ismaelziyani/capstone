@@ -1,11 +1,9 @@
 project_id: 'cloud-consulting-sandbox'
 
 #Storage
-bucket: 'capstone_csv_bucket'
+bucket: 'capstonev3-bucket'
 
 #Bigquery
-dataset: 'capstone_dataset'
-table: 'capstone_table'
+dataset: 'capstonev3_dataset'
+table: 'capstonev3_table'
 
-#Pubsub
-subscription_id : "capstone-subscription"

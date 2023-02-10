@@ -23,17 +23,35 @@ gcloud iam service-accounts create ${SA_CAPSTONE} --description="The Cloud Run s
 fi
 
 # Add necessary roles
+gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} --member="serviceAccount:${sa_capstone_email}" --role='roles/iam.serviceAccountUser'
+gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} --member="serviceAccount:${sa_capstone_email}" --role='roles/storage.objectViewer'
 gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} --member="serviceAccount:${sa_capstone_email}" --role='roles/bigquery.dataEditor'
 gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} --member="serviceAccount:${sa_capstone_email}" --role='roles/bigquery.user'
-gcloud projects add-iam-policy-binding ${GCP_PROJECT_ID} --member="serviceAccount:${sa_capstone_email}" --role='roles/iam.serviceAccountUser'
+
+# Create bucket
+gcloud storage buckets create gs://${GCP_APP_NAME}-bucket --location=EU --project=${GCP_PROJECT_ID}
+
+
+# Create dataset
+dataset=${GCP_PROJECT_ID}:${GCP_APP_NAME}_dataset
+bq --location=${GCP_REGION} mk --dataset $dataset
+
+# Create table with schema
+bq mk -t \
+  ${dataset}.${GCP_APP_NAME}_table \
+  id:INTEGER,first_name:STRING,last_name:STRING,email:STRING,gender:STRING,ip_adress:STRING
+
 
 #Create Pubsub topic
-gcloud pubsub topics create capstone-topic
+gcloud pubsub topics create ${GCP_APP_NAME}-topic
 
-# Create push subscription
+#Create Pubsub deadletter topic
+gcloud pubsub topics create ${GCP_APP_NAME}-deadletter-topic
+#Deadletter subscription
+ 
 
 
 # Create notifications from Cloud Storage to PubSub
-gcloud storage buckets notifications create gs://${GCP_BUCKET} --topic=${GCP_TOPIC}
+gcloud storage buckets notifications create gs://${GCP_APP_NAME}-bucket --topic=${GCP_APP_NAME}-topic
 
 gcloud builds submit 
