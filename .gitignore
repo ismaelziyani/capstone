@@ -3,5 +3,5 @@ deploy.sh
 Dockerfile
 mock-data.csv
 cheatsheet.txt
-myvenv
+virtual-env
 __pycache__

@@ -1,6 +1,6 @@
 substitutions:
   _APP_NAME: 'capstone-v2'
-  _SERVICE_SA: 'capstone-sa@cloud-consulting-sandbox.iam.gserviceaccount.com'
+  _SERVICE_SA: 'sa-capstone@cloud-consulting-sandbox.iam.gserviceaccount.com'
   _CLOUD_REGION: 'europe-west1'
 
 
@@ -38,25 +38,28 @@ steps:
 
 
 
-# # Build image
-# steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   id: 'Build Docker image'
-#   args: ['build', '-t', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA', '.']
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: 'Clean up Container Registry images'
+  entrypoint: sh
+  args: 
+  - '-c'
+  - |
+    apt-get --yes install jq && \
+    gcloud container images list-tags gcr.io/$PROJECT_ID/${_APP_NAME} --format=json \
+    | jq 'sort_by(.timestamp.datetime) | reverse | to_entries' \
+    | jq '.[] | select(.key > 4) | {digestid : .value.digest} | .digestid' \
+    | xargs -I {} gcloud container images delete gcr.io/$PROJECT_ID/${_APP_NAME}@{} --quiet
+  
 
-# # Push the container image to Container Registry
-# - name: 'gcr.io/cloud-builders/docker'
-#   id: 'Push to Contaier Registry'
-#   args: ['push', 'eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA']  
 
-# # Deploy container image to Cloud Run
-# - name: 'gcr.io/cloud-builders/gcloud'
-#   id: 'Deploy image to Cloud Run'
-#   args: ['run', 'deploy', '${_APP_NAME}',
-#   '--image=eu.gcr.io/$PROJECT_ID/${_APP_NAME}:$SHORT_SHA',
-#   '--region', '${_CLOUD_REGION}',
-#   '--platform', 'managed',
-#   '--timeout', '3600',
-#   '--allow-unauthenticated'
-#   ]
-
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: 'Clean up Cloud Run revisions'
+  entrypoint: sh
+  args: 
+  - '-c'
+  - |
+    apt-get --yes install jq && \
+    gcloud run revisions list --service ${_APP_NAME} --region ${_CLOUD_REGION} --format=json \
+    | jq 'sort_by(.value.metadata.creationTimestamp) | to_entries' \
+    | jq '.[] | select(.key > 4) | {name: .value.metadata.name} | .name' \
+    | xargs -I {} gcloud run revisions delete {} --region ${_CLOUD_REGION} --quiet
