@@ -1,7 +1,4 @@
-cloud-consulting-sandbox-9a6ddcd19a01.json
-deploy.sh
-Dockerfile
 mock-data.csv
-cheatsheet.txt
 virtual-env
 __pycache__
+tester.py

@@ -1,43 +1,56 @@
 substitutions:
   _APP_NAME: 'capstonev3'
-  #_SERVICE_SA: 'sa-capstonev3@cloud-consulting-sandbox.iam.gserviceaccount.com'
+  _SERVICE_SA: 'sa-capstonev3@cloud-consulting-sandbox.iam.gserviceaccount.com'
   _CLOUD_REGION: 'europe-west1'
 
 
 steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   id: 'Build image'
-#   args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_APP_NAME}', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build image'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_APP_NAME}', '.']
 
 
 
-# # Push the container image to Container Registry
-# - name: 'gcr.io/cloud-builders/docker'
-#   id: 'Push to Container Registry'
-#   args: ['push', 'gcr.io/$PROJECT_ID/${_APP_NAME}']  
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push to Container Registry'
+  args: ['push', 'gcr.io/$PROJECT_ID/${_APP_NAME}']  
 
 
 
-# # Deploy container image to Cloud Run
-# - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-#   id: 'Deploy to Cloud Run'
-#   entrypoint: gcloud
-#   args: 
-#     - 'run'
-#     - 'deploy'
-#     - '${_APP_NAME}'
-#     - '--image'
-#     - 'gcr.io/$PROJECT_ID/${_APP_NAME}'
-#     - '--region'
-#     - '${_CLOUD_REGION}'
-#     - --timeout
-#     - '60m'
-#     - '--service-account=${_SERVICE_SA}'
-#     - --cpu
-#     - '4'
-#     - --memory
-#     - '2Gi'
-#     - '--allow-unauthenticated'
+# Deploy container image to Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: 'Deploy to Cloud Run'
+  entrypoint: gcloud
+  args: 
+    - 'run'
+    - 'deploy'
+    - '${_APP_NAME}'
+    - '--image'
+    - 'gcr.io/$PROJECT_ID/${_APP_NAME}'
+    - '--region'
+    - '${_CLOUD_REGION}'
+    - --timeout
+    - '60m'
+    - '--service-account=${_SERVICE_SA}'
+    - --cpu
+    - '4'
+    - --memory
+    - '2Gi'
+    - '--allow-unauthenticated'
+
+
+# Create Cron job
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  id: 'Create cron job'
+  entrypoint: sh
+  args: 
+  - '-c'
+  - | 
+    gcloud functions describe ${_APP_NAME} --region ${_CLOUD_REGION} --format "value(httpsTrigger.url)" \
+    | xargs -I {} gcloud scheduler jobs create http ${_APP_NAME}-stream-cron-job \
+    --location=${_CLOUD_REGION} --description='Streams random data to capstone table by triggering the random data generator in Cloud Function' \
+    --http-method='GET' --schedule='* * * * *' --uri={}
 
 
 
@@ -47,10 +60,10 @@ steps:
   entrypoint: sh
   args: 
   - '-c'
-  - |
+  - | 
     gcloud run services describe ${_APP_NAME} --platform managed --region ${_CLOUD_REGION} --format "value(status.url)" \
-    | xargs -I {} gcloud pubsub subscriptions create ${_APP_NAME}-push-subscription --topic=${_APP_NAME}-topic --push-endpoint={}/trigger \
-     --dead-letter-topic=${_APP_NAME}-deadletter-topic --max-delivery-attempts=5
+    | xargs -I {} gcloud pubsub subscriptions create ${_APP_NAME}-push-subscription --topic=${_APP_NAME}-batch-topic --push-endpoint={}/trigger \
+    --dead-letter-topic=${_APP_NAME}-batch-deadletter-topic --max-delivery-attempts=5
     
 
 

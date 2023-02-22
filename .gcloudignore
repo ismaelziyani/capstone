@@ -1,6 +1,5 @@
-__pycache__
-mock-data.csv
 cheatsheet.txt
 .gitignore
 .env
 .virtual-env
+tester.py

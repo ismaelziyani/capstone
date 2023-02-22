@@ -1,0 +1,34 @@
+Example of post request to a push endpoint: 
+
+{
+    "message": {
+        "attributes": {
+            "key": "value"
+        },
+        "data": "SGVsbG8gQ2xvdWQgUHViL1N1YiEgSGVyZSBpcyBteSBtZXNzYWdlIQ==",
+        "messageId": "2070443601311540",
+        "message_id": "2070443601311540",
+        "publishTime": "2021-02-26T19:13:55.749Z",
+        "publish_time": "2021-02-26T19:13:55.749Z"
+    },
+   "subscription": "projects/myproject/subscriptions/mysubscription"
+}
+
+
+
+gcloud projects add-iam-policy-binding cloud-consulting-sandbox --member="serviceAccount:sa-capstone@cloud-consulting-sandbox.iam.gserviceaccount.com" --role='roles/iam.serviceAccountUser'
+
+
+
+example of pubsub message pulled: 
+MESSAGE_ID: 6971490142316357
+ORDERING_KEY:
+ATTRIBUTES: bucketId=capstonev3-bucket
+eventTime=2023-02-13T13:58:16.625447Z
+eventType=OBJECT_FINALIZE
+notificationConfig=projects/_/buckets/capstonev3-bucket/notificationConfigs/1
+objectGeneration=1676296696541518
+objectId=250x250.png
+payloadFormat=JSON_API_V1
+DELIVERY_ATTEMPT:
+ACK_ID: UAYWLF1GSFE3GQhoUQ5PXiM_NSAoRRIGAU8CKF15MEo.......
