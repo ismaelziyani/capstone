@@ -1,4 +1,6 @@
 mock-data.csv
-virtual-env
-__pycache__
+my-env
+tester
 tester.py
+.cloudignore
+cheatsheet.txt

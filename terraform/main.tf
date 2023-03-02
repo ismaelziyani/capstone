@@ -6,17 +6,31 @@ terraform {
         version = "~> 4.0"  
     }
   }
+
+  backend "gcs" {
+      buckbucket = "cloud-consulting-sandbox-capstonev4-terraform-state"    
+  }
 }
 
 provider "google" {
-    project     = var.project_name
-    region = var.project_region
+    project     = var.gcp_project_id
+    region = var.gcp_region
     zone = var.project_zone
+}
+
+# Enable APIs
+resource "google_project_service" "apis_to_enable" {
+  provider = google
+  for_each = toset(var.apis_to_enable)
+  project                    = var.gcp_project_id
+  service                    = each.key
+  disable_dependent_services = false
+  disable_on_destroy         = false
 }
 
 #Service accounts
 resource "google_service_account" "cloudrun_service_account" {
-  account_id   = "sa-${var.app_name}"
+  account_id   = "sa-${var.gcp_app_name}"
   display_name = "Cloud Run Service Account"
 }
 
@@ -28,7 +42,7 @@ resource "google_project_iam_member" "cloudbuild_sa" {
         ])
   role   = each.key
   member = "serviceAccount:${var.project_number}@cloudbuild.gserviceaccount.com"
-  project = var.project_name
+  project = var.gcp_project_id
 }
 
 resource "google_project_iam_member" "cloudrun_service_account" {
@@ -39,14 +53,14 @@ resource "google_project_iam_member" "cloudrun_service_account" {
         "roles/bigquery.user"
         ])
   role    = each.key
-  member = "serviceAccount:sa-${var.app_name}@${var.project_name}.iam.gserviceaccount.com"
-  project = var.project_name
+  member = "serviceAccount:sa-${var.gcp_app_name}@${var.gcp_project_id}.iam.gserviceaccount.com"
+  project = var.gcp_project_id
 }
 
 #Storage bucket
 resource "google_storage_bucket" "bucket-batch" {
-  project       = var.project_name
-  name          = "${var.app_name}-bucket"
+  project       = var.gcp_project_id
+  name          = "${var.gcp_app_name}-bucket"
   location      = var.project_region_multi
   storage_class = "STANDARD"
   force_destroy = true
@@ -58,7 +72,7 @@ resource "google_storage_bucket" "bucket-batch" {
 
 #Bigquery
 resource "google_bigquery_dataset" "mydataset" {
-  dataset_id                  = "${var.app_name}_dataset"
+  dataset_id                  = "${var.gcp_app_name}_dataset"
   description                 = "This is the dataset for batch and streaming person data"
   location                    = var.project_region_multi
   delete_contents_on_destroy = true
@@ -73,7 +87,7 @@ resource "google_bigquery_dataset" "mydataset" {
 
 resource "google_bigquery_table" "mytable" {
   dataset_id = google_bigquery_dataset.mydataset.dataset_id
-  table_id   = "${var.app_name}_table"
+  table_id   = "${var.gcp_app_name}_table"
   deletion_protection = false
 
   schema = <<EOF
@@ -121,34 +135,60 @@ depends_on = [
 ]
 }
 
-#Pubsub
+# Pubsub Topics
 resource "google_pubsub_topic" "batch-topic" {
-  name = "${var.app_name}-batch-topic"
+  name = "${var.gcp_app_name}-batch-topic"
 }
 resource "google_pubsub_topic" "batch-deadletter-topic" {
-  name = "${var.app_name}-batch-deadletter-topic"
+  name = "${var.gcp_app_name}-batch-deadletter-topic"
 }
 resource "google_pubsub_topic" "stream-topic" {
-  name = "${var.app_name}-stream-topic"
+  name = "${var.gcp_app_name}-stream-topic"
 }
+
+# Pubsub Subscriptions
+
+resource "google_pubsub_subscription" "batch-subscription" {
+  name = "${var.gcp_app_name}-batch-subscription"
+  topic = google_pubsub_topic.batch-topic.name
+  ack_deadline_seconds = 60
+
+  push_config {
+    push_endpoint = trimspace(file("/workspace/activation-cloud-run"))
+
+  }
+  depends_on = [
+    google_pubsub_topic.batch-topic
+  ]
+}
+
 resource "google_pubsub_subscription" "batch-deadletter-subscription" {
-  name  = "${var.app_name}-batch-deadletter-subscription"
+  name  = "${var.gcp_app_name}-batch-deadletter-subscription"
   topic = google_pubsub_topic.batch-deadletter-topic.name
   ack_deadline_seconds = 20
 
   depends_on = [
+    google_project_service.apis_to_enable,
     google_pubsub_topic.batch-deadletter-topic
   ]
 }
+
 resource "google_pubsub_subscription" "stream-subscription" {
-  name  = "${var.app_name}-stream-subscription"
+  name  = "${var.gcp_app_name}-stream-subscription"
   topic = google_pubsub_topic.stream-topic.name
   ack_deadline_seconds = 20
 
+  bigquery_config {
+    table = "${var.gcp_project_name}:${google_bigquery_dataset.mydataset.dataset_id}.${google_bigquery_table.mytable.table_id}"
+  }
+
   depends_on = [
-    google_pubsub_topic.stream-topic
+    google_pubsub_topic.stream-topic,
+    google_bigquery_dataset.mydataset,
+    google_bigquery_table.mytable
   ]
 }
+
 
 #Storage notification
 resource "google_storage_notification" "storage_notification" {
@@ -170,17 +210,17 @@ resource "google_storage_notification" "storage_notification" {
 #   byte_length = 8
 # }
 # resource "google_dataflow_job" "dataflow_job" {
-#     project = var.project_name
+#     project = var.gcp_project_id
 #     region = var.project_region
-#     name = "${var.app_name}-${random_id.rng.hex}"
+#     name = "${var.gcp_app_name}-${random_id.rng.hex}"
 #     template_gcs_path = "gs://dataflow-templates/latest/PubSub_Subscription_to_BigQuery"
-#     temp_gcs_location = "gs://${var.project_name}-bucket"
+#     temp_gcs_location = "gs://${var.gcp_project_id}-bucket"
 #     skip_wait_on_job_termination = false
 #     on_delete = "cancel"
 
 #     parameters = {
-#         inputSubscription = "projects/${var.project_name}/subscriptions/${var.project_name}-stream-subscription"
-#         outputTableSpec = "${var.project_name}:${var.app_name}_dataset.${var.app_name}_table"
+#         inputSubscription = "projects/${var.gcp_project_id}/subscriptions/${var.gcp_project_id}-stream-subscription"
+#         outputTableSpec = "${var.gcp_project_id}:${var.gcp_app_name}_dataset.${var.gcp_app_name}_table"
 #     }
 #     depends_on = [
 #       google_storage_bucket.bucket-batch,
@@ -193,30 +233,28 @@ resource "google_storage_notification" "storage_notification" {
 
 #Cloud Functions
 resource "google_storage_bucket" "function-bucket" {
-  name     = "${var.app_name}-function-bucket"
+  name     = "${var.gcp_app_name}-function-bucket"
   location = var.project_region_multi
 }
 
 resource "google_storage_bucket_object" "cloudfunction" {
   name   = "function.zip"
   bucket = google_storage_bucket.function-bucket.name
-  source = "/Users/ziyanii/dev/exercises/capstone/function.zip"
+  source = "/Users/ziyanii/dev/exercises/capstone/functions/${var.gcp_app_name}-function.zip"
   
   depends_on = [
     google_storage_bucket.function-bucket
   ]
 }
 resource "google_cloudfunctions_function" "function" {
-  name        = "${var.app_name}-function"
+  name        = "${var.gcp_app_name}-function"
   description = "Function that returns random people when triggered"
   runtime     = "python37"
-  region = var.project_region
+  region = var.gcp_region
 
   source_archive_bucket        = google_storage_bucket.function-bucket.name
   source_archive_object        = google_storage_bucket_object.cloudfunction.name
-  source_repository {
-    url = 
-  }
+ 
   trigger_http                 = true
   timeout                      = 100
   entry_point                  = "random_person"
@@ -229,14 +267,14 @@ resource "google_cloudfunctions_function" "function" {
 
 #Cloud scheduler cron
 resource "google_cloud_scheduler_job" "job" {
-  name        = "${var.app_name}-stream-cron-job"
+  name        = "${var.gcp_app_name}-stream-cron-job"
   description = "cron job that triggers cloud function"
   schedule    = "*/2 * * * *"
-  region = var.project_region
+  region = var.gcp_region
   
   http_target {
     http_method = "GET"
-    uri = "https://${var.project_region}-${var.project_name}.cloudfunctions.net/${var.app_name}"
+    uri = "https://${var.gcp_region}-${var.gcp_project_id}.cloudfunctions.net/${var.gcp_app_name}"
   }
 
   depends_on = [

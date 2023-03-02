@@ -1,8 +1,5 @@
+my-env
+tester
+tester.py
 cheatsheet.txt
 .gitignore
-.env
-.virtual-env
-.vscode
-tester.py
-deploy.sh
-tester.py

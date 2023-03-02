@@ -8,17 +8,16 @@ steps:
 # Steps for creating Topic (partial deployment)
 # Terraform init 
 - name: 'hashicorp/terraform'
-  id: 'terraform init cloud build service-account'
+  id: 'Terraform init'
   dir: 'terraform'
   entrypoint: 'sh'
   args:
     - '-c'
     - |
-      touch /workspace/activation-cloud-run &&
       terraform init
-# Terraform apply- 
+# Terraform apply
 - name: 'hashicorp/terraform'
-  id: 'terraform apply cloud build service-account'
+  id: 'terraform apply cloud build Service-account'
   dir: 'terraform'
   entrypoint: 'sh'
   args:
@@ -62,17 +61,19 @@ steps:
     - '--allow-unauthenticated'
 
 
-# Create Pubsub push subscription
+# Fetch Cloud Run URL
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  id: 'Create push subscription'
+  id: 'Fetch Cloud Run URL'
+  dir: terraform
   entrypoint: sh
   args: 
   - '-c'
-  - | 
-    gcloud run services describe ${_APP_NAME} --platform managed --region ${_CLOUD_REGION} --format "value(status.url)" \
-    | xargs -I {} gcloud pubsub subscriptions create ${_APP_NAME}-push-subscription --topic=${_APP_NAME}-batch-topic --push-endpoint={}/trigger \
-    --dead-letter-topic=${_APP_NAME}-batch-deadletter-topic --max-delivery-attempts=5
-    
+  - |
+    echo "Starting Save URL" &&
+    touch /workspace/activation-cloud-run &&
+    gcloud run services describe ${_APP_NAME} --platform managed --region ${_CLOUD_REGION} --format 'value(status.url)' > /workspace/activation-cloud-run
+#    export TF_VAR_cloud_run_url="$(gcloud run services describe ${_APP_NAME} --platform managed --region ${_CLOUD_REGION} --format 'value(status.url)')" 
+
 
 
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -111,7 +112,6 @@ steps:
   args:
     - '-c'
     - |
-      touch /workspace/activation-cloud-run &&
       terraform 
 # Terraform apply- 
 - name: 'hashicorp/terraform'
@@ -123,3 +123,4 @@ steps:
   - |
     terraform plan -out=plan.out
     terraform apply plan.out -auto-approve
+
