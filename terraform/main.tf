@@ -8,7 +8,7 @@ terraform {
   }
 
   backend "gcs" {
-      buckbucket = "cloud-consulting-sandbox-capstonev4-terraform-state"    
+      bucket = "cloud-consulting-sandbox-capstonev4-terraform-state"    
   }
 }
 
